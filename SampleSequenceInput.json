@@ -1,6 +1,6 @@
 {
     "Sequence": {
-        "Stream": [
+        "Streams": [
             {
                 "Name" : "StreamA",
                 "Label" : "Client"
@@ -10,27 +10,29 @@
                 "Label" : "Server"
             }
         ],
-        "Frame": {
-            "Name": "FrameA",
-            "Label": "Interaction Frame A",
-            "Connection": [
-                {
-                    "Label": "Clicks button",
-                    "Start": "StreamA",
-                    "End": "StreamB"
-                },
-                {
-                    "Label": "Postback",
-                    "Start": "StreamB",
-                    "End": "StreamA"
-                },
-                {
-                    "Label": "Process",
-                    "Start": "StreamA",
-                    "Active": "start/end/auto",
-                    "End": "StreamA"
-                }
-            ]
-        }
+        "Connections": [
+            {
+                "Label": "Clicks button",
+                "Start": "StreamA",
+                "End": "StreamB"
+            },
+            {
+                "Label": "Postback",
+                "Start": "StreamB",
+                "End": "StreamA"
+            },
+            {
+                "Label": "Process",
+                "Start": "StreamA",
+                "Active": "start/end/auto",
+                "End": "StreamA"
+            }
+        ],
+        "Frames": [
+            {
+                "Name": "FrameA",
+                "Label": "Interaction Frame A"
+            }
+        ]
     }
 }
