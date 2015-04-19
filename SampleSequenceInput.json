@@ -1,0 +1,36 @@
+{
+    "Sequence": {
+        "Stream": [
+            {
+                "Name" : "StreamA",
+                "Label" : "Client"
+            },
+            {
+                "Name" : "StreamB",
+                "Label" : "Server"
+            }
+        ],
+        "Frame": {
+            "Name": "FrameA",
+            "Label": "Interaction Frame A",
+            "Connection": [
+                {
+                    "Label": "Clicks button",
+                    "Start": "StreamA",
+                    "End": "StreamB"
+                },
+                {
+                    "Label": "Postback",
+                    "Start": "StreamB",
+                    "End": "StreamA"
+                },
+                {
+                    "Label": "Process",
+                    "Start": "StreamA",
+                    "Active": "start/end/auto",
+                    "End": "StreamA"
+                }
+            ]
+        }
+    }
+}

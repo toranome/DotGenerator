@@ -1,0 +1,28 @@
+digraph G { // Funsies
+    // Node declaration
+    dog;
+    animal;
+    mammal; // I actually don't know if all mammals have legs
+    pet;
+    owner;
+    human;
+    cat;
+    legs;
+    role;
+
+    // Edge definition
+    /* Note that UML diagrams can be represented nicely by changing the
+       style of the TAIL, because the hierarchical structure that
+       GraphViz.Dot enforces implies that the tail is higher in the
+       hierarchy. */
+    mammal -> human [arrowtail=empty, dir=back];
+    mammal -> legs [arrowtail=diamond, dir=back];
+    animal -> mammal [arrowtail=empty, dir=back];
+    mammal -> dog [arrowtail=empty, dir=back];
+    mammal -> cat [arrowtail=empty, dir=back];
+    role -> pet [arrowtail=empty, dir=back];
+    role -> owner [arrowtail=empty, dir=back];
+    owner -> human [dir=none];
+    animal -> role [arrowtail=diamond, dir=back, headlabel="0..*"];
+    human -> pet [arrowtail=odiamond, dir=back];
+}

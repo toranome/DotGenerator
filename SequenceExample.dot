@@ -1,0 +1,53 @@
+digraph "Sequence Diagram" {
+    nodesep=1
+    compound=true
+
+// Stream Head and Tail Nodes
+
+    {
+        node [shape=box]
+        rank=source
+        head_StreamA
+        head_StreamB
+    }
+
+    {
+        node [shape=point]
+        rank=sink
+        tail_StreamA
+        tail_StreamB
+    }
+
+// Stream Clusters
+    edge [dir=none, style=dashed]
+
+    subgraph cluster_StreamA {
+        node [shape=point, style=invis]
+        A; B; C
+    }
+    head_StreamA -> A [lhead=cluster_StreamA]
+    C -> tail_StreamA [ltail=cluster_StreamA]
+
+    subgraph cluster_StreamB {
+        node [shape=point, style=invis]
+        D; E; F
+    }
+
+    subgraph cluster_StreamB_TestName {
+        node [shape=point, style=invis]
+        G; H
+    }
+    head_StreamB -> D [lhead=cluster_StreamB]
+    F -> G [ltail=cluster_StreamB, lhead=cluster_StreamB_TestName]
+    H -> tail_StreamB [ltail=cluster_StreamB_TestName]
+
+// Stream Edges
+    edge [style=invis]
+    A -> B -> C
+    D -> E -> F
+    G -> H
+
+// Sequence
+    edge [dir=forward, constraint=false, style=solid]
+    A -> D [ltail=cluster_StreamA, lhead=cluster_StreamB]
+}

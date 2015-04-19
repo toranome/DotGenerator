@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sequence>
+    <Stream name="StreamA" label="Client" />
+    <Stream name="StreamB" label="Server" />
+    <Frame name="FrameA" label="Interaction Frame A">
+        <Connection label="Clicks button" start="StreamA" end="StreamB" />
+        <Connection label="Postback">
+            <Start stream="StreamA" active="start/end/auto"/>
+            <End stream="StreamB" />
+        </Connection>
+        <Connection label="Process" start="StreamA" end="StreamA" />
+    </Frame>
+</Sequence>
