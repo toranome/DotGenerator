@@ -9,56 +9,41 @@ print (root)
 
 class JsonParser:
 
-    nodes = []
-    edges = []
-
-    def ParseStructure(content, parent="", tab=""):
-        if type(content) is dict:
-            if len(content.keys()) == 0:
-                print ("Empty Dict")
+    def GetGraphFromStructure(container, parent=""):
+        if type(container) is dict: # TODO refactor
+            content = container.items()
+            if len(list(content)) == 0:
+                print ("Empty")
             else:
-                nodes = []
-                edges = []
-                for item in content.items():
-                    print ("{}{} -> {}".format(tab, parent, item[0]))
-                    result = JsonParser.ParseStructure(
-                        item[1],
-                        item[0],
-                        tab+"  "
-                    )
-                    edges.extend(result["Edges"])
-                    nodes.extend([item[0]])
-                    nodes.extend(result["Nodes"])
-                    edges.extend([(parent, item[0])])
-                return {'Nodes': nodes, 'Edges': edges}
-        elif type(content) is list:
-            if len(content) == 0:
-                print ("Empty List")
+                return JsonParser.ParseContent(content, parent, True)
+        elif type(container) is list:
+            content = list(enumerate(container))
+            if len(list(content)) == 0:
+                print ("Empty")
             else:
-                nodes = []
-                edges = []
-                for item in content:
-                    result = JsonParser.ParseStructure(
-                        item,
-                        parent,
-                        tab
-                    )
-                    nodes.extend(result["Nodes"])
-                    edges.extend(result["Edges"])
-                return {'Nodes': nodes, 'Edges': edges}
+                return JsonParser.ParseContent(content, parent, False)
         else:
-            print ("{}{} -> {} : {}".format(
-                tab,
-                parent,
-                content,
-                type(content))
-            )
-            return {'Nodes': [content], 'Edges': [(parent, content)]}
+            return {'Nodes': [container], 'Edges': [(parent, container)]}
 
-    def PrintNodes():
+    def ParseContent(content, parent, addNode=False):
+        nodes = []
+        edges = []
+        for key, value in content:
+            result = JsonParser.GetGraphFromStructure(
+                value,
+                key
+            )
+            nodes.extend(result["Nodes"])
+            edges.extend(result["Edges"])
+            if addNode:
+                nodes.extend([key])
+                edges.extend([(parent, key)])
+        return {'Nodes': nodes, 'Edges': edges}
+
+    def CreateNodeIds():
         pass
 
-    def PrintEdges():
+    def PrintFormattedStructure():
         pass
 
 if False:
@@ -79,23 +64,31 @@ class TestJsonParser(unittest.TestCase):
                                  ['A','B','C',{'Nested List':
                                      ['1','2','3',['4','5']]}]}}
 
-    def test_ParseStructure_ParserReturnsCorrectDict(self):
+    def test_GetGraphFromStructure_ParserReturnsCorrectDict(self):
         # TODO convert node and edge lists into sets
-        result = JsonParser.ParseStructure(self.structure)
+        result = JsonParser.GetGraphFromStructure(self.structure)
         self.assertEqual(dict, type(result))
         self.assertIn('Nodes', result.keys())
         self.assertIn('Edges', result.keys())
 
-    def test_ParseStructure_AllNodesAreParsed(self):
+    def test_GetGraphFromStructure_AllNodesAreParsed(self):
         expected = [
-            'Root',
-            'List', 'A', 'B', 'C',
-            'Nested List', '1', '2', '3', '4', '5'
+            'A',
+            'B',
+            'C',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            'Nested List',
+            'List',
+            'Root'
         ]
-        result = JsonParser.ParseStructure(self.structure)
+        result = JsonParser.GetGraphFromStructure(self.structure)
         self.assertEqual(expected, result["Nodes"])
 
-    def test_ParseStructure_AllEdgesAreParsed(self):
+    def test_GetGraphFromStructure_AllEdgesAreParsed(self):
         expected = [
             ('List', 'A'),
             ('List', 'B'),
@@ -109,7 +102,7 @@ class TestJsonParser(unittest.TestCase):
             ('Root', 'List'),
             ('', 'Root')    # TODO remove this
         ]
-        result = JsonParser.ParseStructure(self.structure)
+        result = JsonParser.GetGraphFromStructure(self.structure)
         self.assertEqual(expected, result["Edges"])
 
 if __name__ == '__main__':
