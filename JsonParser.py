@@ -17,27 +17,35 @@ class JsonParser:
             if len(content.keys()) == 0:
                 print ("Empty Dict")
             else:
-                results = []
+                nodes = []
+                edges = []
                 for item in content.items():
                     print ("{}{} -> {}".format(tab, parent, item[0]))
-                    results.append(JsonParser.ParseStructure(
+                    result = JsonParser.ParseStructure(
                         item[1],
                         item[0],
-                        tab+"  ")
+                        tab+"  "
                     )
-                return results
+                    edges.extend(result["Edges"])
+                    nodes.extend([item[0]])
+                    nodes.extend(result["Nodes"])
+                    edges.extend([(parent, item[0])])
+                return {'Nodes': nodes, 'Edges': edges}
         elif type(content) is list:
             if len(content) == 0:
                 print ("Empty List")
             else:
-                results = []
+                nodes = []
+                edges = []
                 for item in content:
-                    results.append(JsonParser.ParseStructure(
+                    result = JsonParser.ParseStructure(
                         item,
                         parent,
-                        tab)
+                        tab
                     )
-                return results
+                    nodes.extend(result["Nodes"])
+                    edges.extend(result["Edges"])
+                return {'Nodes': nodes, 'Edges': edges}
         else:
             print ("{}{} -> {} : {}".format(
                 tab,
@@ -45,6 +53,7 @@ class JsonParser:
                 content,
                 type(content))
             )
+            return {'Nodes': [content], 'Edges': [(parent, content)]}
 
     def PrintNodes():
         pass
@@ -52,26 +61,58 @@ class JsonParser:
     def PrintEdges():
         pass
 
-#outputFile = open('output/SampleSequenceInput.dot', 'w')
-#outputFile.write('digraph Name {')
-#outputFile.write('}')
-#outputFile.close()
+if False:
+    outputFile = open('output/SampleSequenceInput.dot', 'w')
+    outputFile.write('digraph Name {')
+    outputFile.write('}')
+    outputFile.close()
 
-#renderFile = open('output/render_SampleSequenceInput.bat', 'w')
-#renderFile.write('dot -Tsvg SampleSequenceInput.dot -o SampleSequenceInput.svg')
-#renderFile.close()
+    renderFile = open('output/render_SampleSequenceInput.bat', 'w')
+    renderFile.write('dot -Tsvg SampleSequenceInput.dot -o SampleSequenceInput.svg')
+    renderFile.close()
 
 class TestJsonParser(unittest.TestCase):
 
     def setUp(self):
         self.structure = {'Root':
-                        {'List':
-                            [1,2,3,{'Nested List':
-                                [1,2,3,[4,5]]}]}}
+                             {'List':
+                                 ['A','B','C',{'Nested List':
+                                     ['1','2','3',['4','5']]}]}}
+
+    def test_ParseStructure_ParserReturnsCorrectDict(self):
+        # TODO convert node and edge lists into sets
+        result = JsonParser.ParseStructure(self.structure)
+        self.assertEqual(dict, type(result))
+        self.assertIn('Nodes', result.keys())
+        self.assertIn('Edges', result.keys())
 
     def test_ParseStructure_AllNodesAreParsed(self):
+        expected = [
+            'Root',
+            'List', 'A', 'B', 'C',
+            'Nested List', '1', '2', '3', '4', '5'
+        ]
         result = JsonParser.ParseStructure(self.structure)
-        self.assertEqual(list, type(result))
+        self.assertEqual(expected, result["Nodes"])
+
+    def test_ParseStructure_AllEdgesAreParsed(self):
+        expected = [
+            ('List', 'A'),
+            ('List', 'B'),
+            ('List', 'C'),
+            ('Nested List', '1'),
+            ('Nested List', '2'),
+            ('Nested List', '3'),
+            ('Nested List', '4'),
+            ('Nested List', '5'),
+            ('List', 'Nested List'),
+            ('Root', 'List'),
+            ('', 'Root')    # TODO remove this
+        ]
+        result = JsonParser.ParseStructure(self.structure)
+        self.assertEqual(expected, result["Edges"])
 
 if __name__ == '__main__':
-    unittest.main()
+    normal = 1
+    more = 2
+    unittest.main(verbosity = normal)
