@@ -54,7 +54,7 @@ class JsonParser:
                 key = item[0]
                 value = item[1]
                 self.index = self.index + 1
-                new_key = "Node_{:04d}_{}".format(self.index, key)
+                new_key = "Node_{:04d} [label=\"{}\"]".format(self.index, key)
                 new_dict[new_key] = self.CreateNodeIds(value)
             return new_dict
         elif type(structure) is list:
@@ -64,16 +64,20 @@ class JsonParser:
             return new_list
         else:
             self.index = self.index + 1
-            return "Node_{:04d}_{}".format(self.index, structure)
+            return "Node_{:04d} [label=\"{}\"]".format(self.index, structure)
 
     def PrintFormattedStructure():
         pass
 
-graph = JsonParser.GetGraphFromStructure(root)
+jsonParser = JsonParser()
+renamedRoot = jsonParser.CreateNodeIds(root)
+graph = JsonParser.GetGraphFromStructure(renamedRoot)
 
-if False:
+if True:
     outputFile = open('output/SampleSequenceInput.dot', 'w')
-    outputFile.write('digraph Name {')
+    outputFile.write('digraph Name {\n')
+    for node in graph["Nodes"]:
+        outputFile.write(node+'\n')
     outputFile.write('}')
     outputFile.close()
 
@@ -132,17 +136,17 @@ class TestJsonParser(unittest.TestCase):
 
     def test_CreateNodeIds_AllNodesAreRenamed(self):
         expected = {
-             'Node_0001_Root':
-            {'Node_0002_List':
-            ['Node_0003_A',
-             'Node_0004_B',
-             'Node_0005_C',
-            {'Node_0006_Nested List':
-            ['Node_0007_1',
-             'Node_0008_2',
-             'Node_0009_3',
-            ['Node_0010_4',
-             'Node_0011_5']]}]}}
+             'Node_0001 [label=\"Root\"]':
+            {'Node_0002 [label=\"List\"]':
+            ['Node_0003 [label=\"A\"]',
+             'Node_0004 [label=\"B\"]',
+             'Node_0005 [label=\"C\"]',
+            {'Node_0006 [label=\"Nested List\"]':
+            ['Node_0007 [label=\"1\"]',
+             'Node_0008 [label=\"2\"]',
+             'Node_0009 [label=\"3\"]',
+            ['Node_0010 [label=\"4\"]',
+             'Node_0011 [label=\"5\"]']]}]}}
         jsonParser = JsonParser()
         result = jsonParser.CreateNodeIds(self.structure)
         self.assertEqual(expected, result)
