@@ -44,15 +44,27 @@ class JsonParser:
                 edges.extend([(parent, key)])
         return {'Nodes': nodes, 'Edges': edges}
 
-    def CreateNodeIds():
-        pass
+    def CreateNodeIds(structure):
+        if type(structure) is dict:
+            new_dict = {}
+            for item in structure.items(): 
+                key = item[0]
+                value = item[1]
+                new_key = "Node_{:04d}_{}".format(0, key)
+                new_dict[new_key] = JsonParser.CreateNodeIds(value)
+            return new_dict
+        elif type(structure) is list:
+            new_list = []
+            for item in structure:
+                new_list.append(JsonParser.CreateNodeIds(item))
+            return new_list
+        else:
+            return "Node_{:04d}_{}".format(0, structure)
 
     def PrintFormattedStructure():
         pass
 
 graph = JsonParser.GetGraphFromStructure(root)
-print(graph["Nodes"])
-print(graph["Edges"])
 
 if False:
     outputFile = open('output/SampleSequenceInput.dot', 'w')
@@ -112,6 +124,23 @@ class TestJsonParser(unittest.TestCase):
         ]
         result = JsonParser.GetGraphFromStructure(self.structure)
         self.assertEqual(expected, result["Edges"])
+
+    def test_CreateNodeIds_AllNodesAreRenamed(self):
+        expected = {
+             'Node_0000_Root':
+            {'Node_0000_List':
+            ['Node_0000_A',
+             'Node_0000_B',
+             'Node_0000_C',
+            {'Node_0000_Nested List':
+            ['Node_0000_1',
+             'Node_0000_2',
+             'Node_0000_3',
+            ['Node_0000_4',
+             'Node_0000_5']]}]}}
+        result = JsonParser.CreateNodeIds(self.structure)
+        print (result)
+        self.assertEqual(expected, result)
 
 if __name__ == '__main__':
     unittest.main()
