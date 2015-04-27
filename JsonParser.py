@@ -10,32 +10,36 @@ print (root)
 class JsonParser:
 
     def GetGraphFromStructure(container, parent=""):
+        isDict = False
+        content = []
+
         if type(container) is dict: # TODO refactor
+            isDict = True
             content = container.items()
-            if len(list(content)) == 0:
-                print ("Empty")
-            else:
-                return JsonParser.ParseContent(content, parent, True)
         elif type(container) is list:
+            isDict = False
             content = list(enumerate(container))
-            if len(list(content)) == 0:
-                print ("Empty")
-            else:
-                return JsonParser.ParseContent(content, parent, False)
         else:
             return {'Nodes': [container], 'Edges': [(parent, container)]}
 
-    def ParseContent(content, parent, addNode=False):
+        if len(list(content)) == 0:
+            print ("Empty")
+        else:
+            return JsonParser.ParseContent(content, parent, isDict)
+
+    def ParseContent(content, parent, isDict=False):
         nodes = []
         edges = []
         for key, value in content:
+            if not isDict:
+                key = parent
             result = JsonParser.GetGraphFromStructure(
                 value,
                 key
             )
             nodes.extend(result["Nodes"])
             edges.extend(result["Edges"])
-            if addNode:
+            if isDict:
                 nodes.extend([key])
                 edges.extend([(parent, key)])
         return {'Nodes': nodes, 'Edges': edges}
@@ -45,6 +49,10 @@ class JsonParser:
 
     def PrintFormattedStructure():
         pass
+
+graph = JsonParser.GetGraphFromStructure(root)
+print(graph["Nodes"])
+print(graph["Edges"])
 
 if False:
     outputFile = open('output/SampleSequenceInput.dot', 'w')
@@ -106,6 +114,4 @@ class TestJsonParser(unittest.TestCase):
         self.assertEqual(expected, result["Edges"])
 
 if __name__ == '__main__':
-    normal = 1
-    more = 2
-    unittest.main(verbosity = normal)
+    unittest.main()
